@@ -387,6 +387,22 @@ section { position: relative; }
 .signup input:focus-visible { outline: 3px solid var(--lamp); outline-offset: 2px; }
 .signup button { cursor: pointer; }
 .signup-msg { min-height: 1.4em; }
+.contact { padding-block: 0 clamp(3.5rem, 8vw, 6rem); }
+.contact .wrap { display: grid; grid-template-columns: 1fr 1.2fr; gap: clamp(1.5rem, 4vw, 4rem); align-items: start; }
+.contact .wrap > * { min-width: 0; }
+.contact h2 { font-size: var(--step-2); }
+.cform { display: grid; gap: .8rem; }
+.cform label { display: grid; gap: .3rem; font-weight: 600; font-size: .9rem; }
+.cform input, .cform textarea {
+  width: 100%; min-width: 0; font: inherit; font-weight: 400; color: var(--cream);
+  background: var(--night); border: 2px solid var(--night-3); border-radius: 12px; padding: .75rem 1rem;
+}
+.cform textarea { min-height: 9rem; resize: vertical; }
+.cform input:focus-visible, .cform textarea:focus-visible { outline: 3px solid var(--lamp); outline-offset: 2px; }
+.cform .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.cform button { justify-self: start; cursor: pointer; }
+.cform button[disabled] { opacity: .6; cursor: progress; }
+@media (max-width: 820px) { .contact .wrap { grid-template-columns: 1fr; } }
 .socials { display: flex; flex-wrap: wrap; gap: .5rem; }
 .chip {
   display: inline-flex; align-items: center; gap: .45rem; padding: .5rem .9rem; border-radius: 999px;
@@ -715,6 +731,24 @@ footer a:hover { color: var(--cream); }
       </div>
     </div>
   </section>
+
+  <section class="contact" id="contact">
+    <div class="wrap">
+      <div class="copy" style="max-width:none">
+        <p class="eyebrow">Contact</p>
+        <h2>Write us a note</h2>
+        <p>Press, streamers, bug reports or just a photo of your cat: send a message and it lands straight in our inbox. You can also email <strong>ara@macao-games.com</strong>.</p>
+      </div>
+      <form class="cform panel" id="contact-form" novalidate>
+        <label for="contact-name">Name <input id="contact-name" name="name" type="text" autocomplete="name"></label>
+        <label for="contact-email">Your email <input id="contact-email" name="email" type="email" autocomplete="email" required></label>
+        <label for="contact-message">Message <textarea id="contact-message" name="message" required></textarea></label>
+        <label class="hp" aria-hidden="true">Leave this empty <input id="contact-botcheck" name="botcheck" type="checkbox" tabindex="-1"></label>
+        <button class="btn" type="submit">Send message</button>
+        <p class="note" id="contact-msg" aria-live="polite">Messages are sent via Web3Forms. See the privacy policy below.</p>
+      </form>
+    </div>
+  </section>
 </main>
 
 <footer id="presskit">
@@ -737,7 +771,7 @@ footer a:hover { color: var(--cream); }
       <h4>Press</h4>
       <ul>
         <li><a href="#presskit">Press kit (coming soon)</a></li>
-        <li><a href="#presskit">Contact</a></li>
+        <li><a href="#contact">Contact</a></li>
         <li><a href="#privacy">Privacy</a></li>
       </ul>
     </div>
@@ -753,9 +787,9 @@ footer a:hover { color: var(--cream); }
       <div id="imprint">
         <h4>Imprint · Impressum</h4>
         <p>Information according to § 5 DDG</p>
-        <p><span class="ph">[Full name]</span><br><span class="ph">[Street and number]</span><br><span class="ph">[Postcode and city]</span><br>Germany</p>
-        <p>Email: <span class="ph">[email address]</span></p>
-        <p>Responsible for content according to § 18 (2) MStV: <span class="ph">[Full name, address as above]</span></p>
+        <p>Heiko Behrens<br>Macao Games<br>Strousbergstraße 11<br>30449 Hannover<br>Germany</p>
+        <p>Email: ara@macao-games.com<br>Contact form: <a href="#contact" style="text-decoration:underline">see above</a></p>
+        <p>Responsible for content according to § 18 (2) MStV: Heiko Behrens, address as above</p>
       </div>
       <div id="privacy">
         <h4>Privacy policy</h4>
@@ -763,6 +797,7 @@ footer a:hover { color: var(--cream); }
         <p>This website sets no cookies and uses no analytics or tracking.</p>
         <p>Fonts are served from this website itself. No data is sent to Google or other font services.</p>
         <p>Newsletter: if you sign up, your email address is stored by <span class="ph">[newsletter provider]</span> only to send you the newsletter. You can unsubscribe at any time.</p>
+        <p>Contact form: if you send a message, your name, email address and message are passed to Web3Forms (Web3Forms, USA) and forwarded to us by email. We use them only to reply to you.</p>
         <p>Hosting: when you visit, the host GitHub Pages (GitHub, Inc., USA) processes your IP address in server logs for technical reasons.</p>
       </div>
     </div>
@@ -779,6 +814,42 @@ footer a:hover { color: var(--cream); }
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       msg.textContent = 'Sign-up is not open yet, so nothing was saved. Wishlist on Steam to hear about the demo in the meantime.';
+    });
+  })();
+</script>
+<script>
+  // Contact form via Web3Forms. Paste the access key from web3forms.com here.
+  var WEB3FORMS_KEY = '';
+  (function () {
+    var form = document.getElementById('contact-form');
+    var msg = document.getElementById('contact-msg');
+    if (!form || !msg) return;
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var email = form.elements.email.value.trim();
+      var text = form.elements.message.value.trim();
+      if (!email || !text) { msg.textContent = 'Please add your email address and a message.'; return; }
+      if (form.elements.botcheck.checked) return;
+      if (!WEB3FORMS_KEY) { msg.textContent = 'The form is not connected yet. Please email ara@macao-games.com instead.'; return; }
+      var btn = form.querySelector('button'); btn.disabled = true;
+      msg.textContent = 'Sending…';
+      fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_KEY,
+          subject: 'Purrfect Order website: new message',
+          from_name: 'purrfectorder.com',
+          name: form.elements.name.value.trim(),
+          email: email,
+          message: text
+        })
+      }).then(function (r) { return r.json(); }).then(function (d) {
+        if (d && d.success) { form.reset(); msg.textContent = 'Thanks! Your message is on its way.'; }
+        else { msg.textContent = 'That did not go through. Please try again or email ara@macao-games.com.'; }
+      }).catch(function () {
+        msg.textContent = 'That did not go through. Please try again or email ara@macao-games.com.';
+      }).finally(function () { btn.disabled = false; });
     });
   })();
 </script>
